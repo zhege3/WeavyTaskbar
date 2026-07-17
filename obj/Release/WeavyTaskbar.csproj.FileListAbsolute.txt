@@ -1,0 +1,10 @@
+D:\software\workspace_github\WeavyTaskbar\bin\Release\WeavyTaskbar.exe
+D:\software\workspace_github\WeavyTaskbar\bin\Release\mscorlib.dll
+D:\software\workspace_github\WeavyTaskbar\bin\Release\zh-Hans\mscorlib.resources.dll
+D:\software\workspace_github\WeavyTaskbar\bin\Release\normidna.nlp
+D:\software\workspace_github\WeavyTaskbar\bin\Release\normnfc.nlp
+D:\software\workspace_github\WeavyTaskbar\bin\Release\normnfd.nlp
+D:\software\workspace_github\WeavyTaskbar\bin\Release\normnfkc.nlp
+D:\software\workspace_github\WeavyTaskbar\bin\Release\normnfkd.nlp
+D:\software\workspace_github\WeavyTaskbar\obj\Release\WeavyTaskbar.csprojResolveAssemblyReference.cache
+D:\software\workspace_github\WeavyTaskbar\obj\Release\WeavyTaskbar.exe
