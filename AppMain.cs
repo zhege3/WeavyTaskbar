@@ -616,6 +616,8 @@ namespace WeavyTaskbar
             if (needsRepair)
                 PositionOverlay();
 
+            SetAccent(true);
+
             if (_buffer.Width != w || _buffer.Height != h)
             {
                 _buffer.Dispose();
@@ -751,32 +753,48 @@ namespace WeavyTaskbar
 
             try
             {
-                int gradientColor = enable ? 0x00000000 : 0;
-                var accent = new AccentPolicy
+                if (enable)
                 {
-                    AccentState = enable
-                        ? AccentState.ACCENT_ENABLE_TRANSPARENTGRADIENT
-                        : AccentState.ACCENT_DISABLED,
-                    AccentFlags = 0,
-                    GradientColor = gradientColor,
-                    AnimationId = 0
-                };
+                    bool win11 = IsWindows11();
+                    int color = win11 ? 0 : 0x01000000;
 
-                int sz = Marshal.SizeOf(accent);
-                IntPtr ptr = Marshal.AllocHGlobal(sz);
-                Marshal.StructureToPtr(accent, ptr, false);
-
-                var wcad = new WindowCompositionAttributeData
+                    var accent = new AccentPolicy { AccentState = AccentState.ACCENT_ENABLE_TRANSPARENTGRADIENT, AccentFlags = 0, GradientColor = color, AnimationId = 0 };
+                    int sz = Marshal.SizeOf(accent);
+                    IntPtr ptr = Marshal.AllocHGlobal(sz);
+                    Marshal.StructureToPtr(accent, ptr, false);
+                    var wcad = new WindowCompositionAttributeData { Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY, Data = ptr, SizeOfData = sz };
+                    NativeMethods.SetWindowCompositionAttribute(_taskbar, ref wcad);
+                    Marshal.FreeHGlobal(ptr);
+                }
+                else
                 {
-                    Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY,
-                    Data = ptr,
-                    SizeOfData = sz
-                };
-
-                NativeMethods.SetWindowCompositionAttribute(_taskbar, ref wcad);
-                Marshal.FreeHGlobal(ptr);
+                    var accent = new AccentPolicy { AccentState = AccentState.ACCENT_DISABLED, AccentFlags = 0, GradientColor = 0, AnimationId = 0 };
+                    int sz = Marshal.SizeOf(accent);
+                    IntPtr ptr = Marshal.AllocHGlobal(sz);
+                    Marshal.StructureToPtr(accent, ptr, false);
+                    var wcad = new WindowCompositionAttributeData { Attribute = WindowCompositionAttribute.WCA_ACCENT_POLICY, Data = ptr, SizeOfData = sz };
+                    NativeMethods.SetWindowCompositionAttribute(_taskbar, ref wcad);
+                    Marshal.FreeHGlobal(ptr);
+                }
             }
             catch { }
+        }
+
+        private static bool IsWindows11()
+        {
+            try
+            {
+                using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
+                {
+                    if (key != null)
+                    {
+                        var v = key.GetValue("CurrentBuild");
+                        if (v != null) { int b; if (int.TryParse(v.ToString(), out b)) return b >= 22000; }
+                    }
+                }
+            }
+            catch { }
+            return false;
         }
 
         private static Icon CreateAppIcon()
@@ -784,17 +802,14 @@ namespace WeavyTaskbar
             var bmp = new Bitmap(32, 32);
             using (var g = Graphics.FromImage(bmp))
             {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.Clear(Color.Transparent);
-
-                g.FillEllipse(Brushes.White, 9, 12, 8, 8);
-                g.FillEllipse(Brushes.White, 14, 8, 10, 10);
-                g.FillEllipse(Brushes.White, 21, 13, 7, 7);
-                g.FillRectangle(Brushes.White, 8, 16, 19, 6);
+                Color[] cols = { Color.FromArgb(255, 80, 80), Color.FromArgb(255, 180, 40), Color.FromArgb(255, 240, 60), Color.FromArgb(80, 200, 80), Color.FromArgb(60, 160, 240), Color.FromArgb(140, 100, 240) };
+                int segW = 28 / cols.Length + 1;
+                for (int i = 0; i < cols.Length; i++)
+                    g.FillRectangle(new SolidBrush(cols[i]), 2 + i * (28 / cols.Length), 10, segW, 14);
             }
             IntPtr hIcon = bmp.GetHicon();
-            var icon = Icon.FromHandle(hIcon);
-            return icon;
+            return Icon.FromHandle(hIcon);
         }
     }
 }

@@ -1,1 +1,6 @@
-!*
+bin/
+obj/
+*.exe
+*.zip
+*.user
+*.suo
