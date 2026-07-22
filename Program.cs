@@ -14,7 +14,7 @@ namespace WeavyTaskbar
             {
                 if (!createdNew)
                 {
-                    MessageBox.Show("WeavyTaskbar is already running.", "WeavyTaskbar",
+                    MessageBox.Show("\u7a0b\u5e8f\u5df2\u5728\u8fd0\u884c\u4e2d\u3002", "WeavyTaskbar",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }

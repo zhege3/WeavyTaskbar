@@ -29,11 +29,6 @@ namespace WeavyTaskbar
         public const byte AC_SRC_ALPHA = 0x01;
         public const int ULW_ALPHA = 0x02;
 
-        public const int WM_HOTKEY = 0x0312;
-        public const uint MOD_ALT = 0x0001;
-        public const uint MOD_CONTROL = 0x0002;
-        public const uint VK_D = 0x44;
-
         [DllImport("user32.dll")]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
@@ -52,13 +47,6 @@ namespace WeavyTaskbar
         [DllImport("user32.dll")]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,
             int X, int Y, int cx, int cy, uint uFlags);
-
-        [DllImport("user32.dll")]
-        public static extern bool RegisterHotKey(IntPtr hWnd, int id,
-            uint fsModifiers, uint vk);
-
-        [DllImport("user32.dll")]
-        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hWnd);
@@ -236,31 +224,8 @@ namespace WeavyTaskbar
         }
     }
 
-    class MessageForm : Form
-    {
-        private AppContext _ctx;
-
-        public MessageForm(AppContext ctx)
-        {
-            _ctx = ctx;
-            FormBorderStyle = FormBorderStyle.None;
-            ShowInTaskbar = false;
-            Width = 1;
-            Height = 1;
-            Location = new Point(-100, -100);
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == NativeMethods.WM_HOTKEY)
-                _ctx.Toggle();
-            base.WndProc(ref m);
-        }
-    }
-
     class AppContext : ApplicationContext
     {
-        private MessageForm _msgForm;
         private OverlayWindow _overlay;
         private NotifyIcon _trayIcon;
         private IntPtr _taskbar;
@@ -273,7 +238,6 @@ namespace WeavyTaskbar
         private int _lastX, _lastY, _lastW, _lastH;
         private volatile bool _cleanedUp;
 
-        private const int HOTKEY_ID = 1;
         private const int FPS = 15;
         private const int OVERLAY_ALPHA = 220;
 
@@ -285,7 +249,7 @@ namespace WeavyTaskbar
             _taskbar = NativeMethods.FindWindow("Shell_TrayWnd", null);
             if (_taskbar == IntPtr.Zero)
             {
-                MessageBox.Show("Cannot find Shell_TrayWnd.", "WeavyTaskbar",
+                MessageBox.Show("\u627e\u4e0d\u5230\u4efb\u52a1\u680f\u7a97\u53e3\u3002", "WeavyTaskbar",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ExitThread();
                 return;
@@ -294,25 +258,9 @@ namespace WeavyTaskbar
             LoadStyles();
             _speedMultiplier = LoadSpeed();
 
-            _msgForm = new MessageForm(this);
-            var h = _msgForm.Handle;
-
-            if (!NativeMethods.RegisterHotKey(_msgForm.Handle, HOTKEY_ID,
-                NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, NativeMethods.VK_D))
-            {
-                MessageBox.Show(
-                    "Ctrl+Alt+D hotkey registration failed.\n" +
-                    "It may already be in use by another application.\n\n" +
-                    "The overlay will still start.",
-                    "WeavyTaskbar",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-
-            _msgForm.FormClosing += (s, e) => { Cleanup(); ExitThread(); };
-
             _trayIcon = new NotifyIcon
             {
-                Text = "WeavyTaskbar - Ctrl+Alt+D to toggle",
+                Text = "WeavyTaskbar",
                 Visible = true
             };
             _trayIcon.MouseClick += (s, e) =>
@@ -385,7 +333,7 @@ namespace WeavyTaskbar
                                 count++;
                             }
                         }
-                        MessageBox.Show(msg, "WeavyTaskbar - Style Error",
+                        MessageBox.Show(msg, "WeavyTaskbar - \u6837\u5f0f\u9519\u8bef",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
@@ -410,7 +358,7 @@ namespace WeavyTaskbar
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Failed to compile styles:\n" + ex.Message,
+                MessageBox.Show("\u6837\u5f0f\u7f16\u8bd1\u5931\u8d25:\n" + ex.Message,
                     "WeavyTaskbar", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
@@ -431,7 +379,7 @@ namespace WeavyTaskbar
         {
             var trayMenu = new ContextMenuStrip();
 
-            var styleMenu = new ToolStripMenuItem("Change Style");
+            var styleMenu = new ToolStripMenuItem("\u66f4\u6362\u6837\u5f0f");
             for (int i = 0; i < _styles.Count; i++)
             {
                 var item = new ToolStripMenuItem(_styles[i].Name);
@@ -451,7 +399,7 @@ namespace WeavyTaskbar
             };
             trayMenu.Items.Add(styleMenu);
 
-            var speedMenu = new ToolStripMenuItem("Speed");
+            var speedMenu = new ToolStripMenuItem("\u901f\u5ea6");
             float[] speeds = { 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 2.5f, 3.0f };
             for (int i = 0; i < speeds.Length; i++)
             {
@@ -475,11 +423,11 @@ namespace WeavyTaskbar
             trayMenu.Items.Add(speedMenu);
 
             trayMenu.Items.Add(new ToolStripSeparator());
-            trayMenu.Items.Add("Toggle Effect (Ctrl+Alt+D)", null, (s, e) => Toggle());
+            trayMenu.Items.Add("\u5207\u6362\u6548\u679c", null, (s, e) => Toggle());
 
             trayMenu.Items.Add(new ToolStripSeparator());
 
-            var startupItem = new ToolStripMenuItem("Start with Windows");
+            var startupItem = new ToolStripMenuItem("\u5f00\u673a\u542f\u52a8");
             startupItem.Checked = CheckStartup();
             startupItem.Click += (s, e) =>
             {
@@ -490,7 +438,7 @@ namespace WeavyTaskbar
             trayMenu.Items.Add(startupItem);
 
             trayMenu.Items.Add(new ToolStripSeparator());
-            trayMenu.Items.Add("Exit", null, (s, e) =>
+            trayMenu.Items.Add("\u9000\u51fa", null, (s, e) =>
             {
                 Cleanup();
                 ExitThread();
@@ -549,11 +497,6 @@ namespace WeavyTaskbar
                     _trayIcon.Dispose();
                     _trayIcon = null;
                 }
-
-                if (_msgForm != null && _msgForm.Handle != IntPtr.Zero)
-                    NativeMethods.UnregisterHotKey(_msgForm.Handle, HOTKEY_ID);
-
-                if (_msgForm != null) _msgForm.Dispose();
             }
             catch { }
         }
@@ -755,10 +698,7 @@ namespace WeavyTaskbar
             {
                 if (enable)
                 {
-                    bool win11 = IsWindows11();
-                    int color = win11 ? 0 : 0x01000000;
-
-                    var accent = new AccentPolicy { AccentState = AccentState.ACCENT_ENABLE_TRANSPARENTGRADIENT, AccentFlags = 0, GradientColor = color, AnimationId = 0 };
+                    var accent = new AccentPolicy { AccentState = AccentState.ACCENT_ENABLE_TRANSPARENTGRADIENT, AccentFlags = 0, GradientColor = 0x01000000, AnimationId = 0 };
                     int sz = Marshal.SizeOf(accent);
                     IntPtr ptr = Marshal.AllocHGlobal(sz);
                     Marshal.StructureToPtr(accent, ptr, false);
@@ -778,23 +718,6 @@ namespace WeavyTaskbar
                 }
             }
             catch { }
-        }
-
-        private static bool IsWindows11()
-        {
-            try
-            {
-                using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion"))
-                {
-                    if (key != null)
-                    {
-                        var v = key.GetValue("CurrentBuild");
-                        if (v != null) { int b; if (int.TryParse(v.ToString(), out b)) return b >= 22000; }
-                    }
-                }
-            }
-            catch { }
-            return false;
         }
 
         private static Icon CreateAppIcon()

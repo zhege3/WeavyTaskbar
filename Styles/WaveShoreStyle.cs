@@ -24,24 +24,24 @@ namespace WeavyTaskbar.Styles
             float waterLevel, wetFade;
             bool hasWater;
 
-            if (ct < 178f)
+            if (ct < 196f)
             {
                 waterLevel = 0f; hasWater = false;
                 wetFade = 1f - Math.Min(1f, ct / 50f);
             }
-            else if (ct < 248f)
+            else if (ct < 266f)
             {
-                float t = (ct - 178f) / 70f;
+                float t = (ct - 196f) / 70f;
                 t = 1f - (1f - t) * (1f - t);
                 waterLevel = maxWater * t; hasWater = true; wetFade = 0f;
             }
-            else if (ct < 262f)
+            else if (ct < 280f)
             {
                 waterLevel = maxWater; hasWater = true; wetFade = 0f;
             }
             else
             {
-                float t = (ct - 262f) / 88f;
+                float t = (ct - 280f) / 70f;
                 t = t * t;
                 waterLevel = maxWater * (1f - t);
                 hasWater = waterLevel > 0f; wetFade = 1f;
