@@ -1,53 +1,59 @@
 # WeavyTaskbar
 
-Dynamic visual effects rendered on the Windows taskbar background. Adds flowing animations beneath your taskbar icons while keeping everything fully clickable.
+动态任务栏特效 —— 在 Windows 任务栏背景上渲染流动的视觉效果，图标和托盘依然完全可点击。
 
-## How It Works
+## 效果预览
 
-WeavyTaskbar creates a transparent overlay window behind the taskbar and renders animated visuals (waves, clouds, grass, fish, etc.) that show through the taskbar's transparent background. Mouse clicks pass through to your icons and system tray.
+### ☁️ CloudDrift（云朵飘移）
+深蓝天空渐变背景，蓬松的白色云朵从左向右缓缓飘过，边缘柔和自然。
 
-- **Windows 10**: Taskbar background is made near-transparent via DWM accent
-- **Windows 11**: Same approach with adjusted transparency parameters
+### 🌈 RainbowGradient（彩虹渐变）
+红橙黄绿青蓝紫从左向右流动的彩虹色带，色彩鲜艳。
 
-## Quick Start
+### 🌊 WaveShore（海浪沙滩）
+米白色沙滩上有零星海星点缀，每 7.8 秒一波海浪从底部涌上又缓缓退下，留下深色湿沙慢慢风干。
 
-1. Download `WeavyTaskbar.zip` from [Releases](../../releases)
-2. Extract to any folder
-3. Double-click `WeavyTaskbar.exe`
-4. Right-click the tray icon to switch styles, adjust speed, or exit
+### 🐟 SeaFish（游鱼）
+深海蓝渐变背景，5~12 条彩色像素风小鱼（小丑鱼橙、蓝倒吊、红宝石、绿慈鲷、金鲃、银鳞）缓慢游弋，身体微扭尾鳍摆动。
 
-## Built-in Styles
+### 🚀 StarShip（星际飞船）
+深空渐变 + 闪烁星星背景，3~5 艘彩色飞船慢速横飞，带脉冲引擎尾焰和驾驶舱。
 
-| Style | Description |
-|-------|-------------|
-| CloudDrift | Drifting fluffy clouds across a blue sky gradient |
-| RainbowGradient | Flowing rainbow color sweep |
-| WaveShore | Waves lapping onto a sandy beach with starfish |
-| SeaFish | School of colorful fish swimming through deep water |
-| StarShip | Spaceships cruising through a starfield |
-| WindGrass | Three-layer swaying grass field |
+### 🌾 WindGrass（三层草丛）
+后中前三层草叶（深绿→中绿→鲜绿），从右向左摆动，带风浪传播效果，偶有小花点缀。
 
-## Customization
+### 🏜 WildWest（西部荒野）
+沙漠天空 + 5~8 棵仙人掌矗立 + 2 颗风滚草翻滚 + 每 5 秒左右各 3 发子弹互射。
 
-Each style is a standalone `.cs` file in the `Styles/` folder. Edit any style file with a text editor, restart the app, and your changes take effect immediately. No compilation needed.
+### 🪲 FireflyNight（萤火虫之夜）
+深蓝夜空 + 暗绿草丛，14 只萤火虫缓慢飞行，4 秒渐亮渐灭脉冲，带柔光光晕。
 
-To create a new style, copy an existing `.cs` file and modify the `Render(Bitmap, float time, int alpha, float speed)` method.
+## 使用方式
 
-## Controls
+1. 下载 `WeavyTaskbar.zip` 解压到任意文件夹
+2. 双击 `WeavyTaskbar.exe`（需要 .NET Framework 4.0+，Win7 及以上自带）
+3. 右键托盘图标：
 
-- **Left-click tray icon** — Toggle effect on/off
-- **Right-click tray icon** — Change style, set speed (0.5x–3x), enable startup, exit
+```
+更换样式 → 选择样式
+速度     → 0.5x ~ 3x
+切换效果 → 开启/关闭
+开机启动 → 随系统启动
+退出     → 关闭程序
+```
 
-## Build from Source
+## 自定义样式
 
-Requires .NET Framework 4.0+ (included with Windows 7+).
+编辑 `Styles/` 文件夹下的 `.cs` 文件，保存后重启程序即生效。每个样式文件都需要一个 `public static void Render(Bitmap bmp, float time, int alpha, float speed)` 方法。
+
+## 构建
 
 ```
 build.bat
 ```
 
-Outputs `WeavyTaskbar.exe` at the project root.
+需要 .NET Framework 4.0+，输出 `WeavyTaskbar.exe`。
 
-## License
+## 许可
 
 MIT
